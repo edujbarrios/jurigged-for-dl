@@ -18,7 +18,15 @@ The main addition is a Jupyter/IPython extension that patches functions and clas
 #### Install
 
 ```bash
-pip install jurigged[notebook]
+git clone https://github.com/edujbarrios/jurigged-for-dl.git
+cd jurigged-for-dl
+pip install -e ".[notebook]"
+```
+
+If you only need upstream Jurigged (without the additions in this fork), install it directly with:
+
+```bash
+pip install "jurigged[notebook]"
 ```
 
 #### Usage
