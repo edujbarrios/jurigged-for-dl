@@ -3,7 +3,9 @@
 
 [Jurigged](https://github.com/breuleux/jurigged) is a Python library that lets you hot-patch running code — change a function or method in your editor, save the file, and the live process picks it up immediately without restarting.
 
-This repository extends jurigged with additions aimed at **deep learning workflows**, where restarting a process to tweak a training step is expensive.
+![sample demo](https://user-images.githubusercontent.com/599820/113785377-ffab1e80-9704-11eb-9c82-6d866c9087a6.gif)
+
+This fork extends jurigged with additions aimed at **deep learning workflows**, where restarting a process to tweak a training step is expensive.
 
 ---
 
@@ -16,7 +18,15 @@ The main addition is a Jupyter/IPython extension that patches functions and clas
 #### Install
 
 ```bash
-pip install jurigged[notebook]
+git clone https://github.com/edujbarrios/jurigged-for-dl.git
+cd jurigged-for-dl
+pip install -e ".[notebook]"
+```
+
+If you only need upstream Jurigged (without the additions in this fork), install it directly with:
+
+```bash
+pip install "jurigged[notebook]"
 ```
 
 #### Usage
