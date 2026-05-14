@@ -31,6 +31,12 @@ To also install the develoop feature, which lets you interactively develop funct
 pip install jurigged[develoop]
 ```
 
+To enable the IPython/Jupyter extension (hot-swap functions/classes when you re-run a cell):
+
+```bash
+pip install jurigged[notebook]
+```
+
 ## Command line
 
 The simplest way to use jurigged is to add `-m jurigged` to your script invocation, or to use `jurigged` instead of `python`. You can use `-v` to get feedback about what files are watched and what happens when you change a file.
@@ -140,6 +146,16 @@ jurigged.watch()
 ```
 
 By default all files in the current directory will be watched, but you can use `jurigged.watch("script.py")` to only watch a single file, or `jurigged.watch("/")` to watch all modules.
+
+### Jupyter / IPython cell hot-swap
+
+If you define functions/classes inside notebook cells and want existing references (e.g. a PyTorch training loop that holds onto `train_step`) to update when you re-run the cell:
+
+```python
+%load_ext jurigged
+```
+
+Re-running a cell that redefines a top-level function or class will patch the previous object in-place and rebind the name back to the original identity.
 
 
 ### Recoders
