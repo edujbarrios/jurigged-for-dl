@@ -27,6 +27,9 @@ develoop = [
     "giving~=0.4.3",
     "rich>=10.13.0",
 ]
+notebook = [
+    "ipython>=8.0.0",
+]
 
 [build-system]
 requires = ["hatchling"]
