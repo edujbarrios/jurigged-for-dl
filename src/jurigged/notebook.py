@@ -90,10 +90,8 @@ def patch_class(old: type, new: type, *, allow_deletions: bool = False) -> Patch
                     # Keep the original descriptor object in-place (identity).
                     if old_kind == "function":
                         setattr(old, name, old_fn)
-                    elif old_kind == "staticmethod":
-                        setattr(old, name, staticmethod(old_fn))
-                    elif old_kind == "classmethod":
-                        setattr(old, name, classmethod(old_fn))
+                    else:
+                        setattr(old, name, old_value)
                 else:
                     stats = stats + PatchStats(functions_skipped=1)
                 continue
