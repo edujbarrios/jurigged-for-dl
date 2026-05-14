@@ -153,3 +153,94 @@ def patch_namespace(
             continue
 
     return stats
+
+
+class _NotebookHotswap:
+    def __init__(self, ipython):
+        self._ipython = ipython
+        self._before: dict[str, Any] = {}
+
+    def _snapshot(self):
+        ns = getattr(self._ipython, "user_ns", {}) or {}
+        self._before = {
+            name: obj
+            for name, obj in ns.items()
+            if isinstance(obj, (FunctionType, type))
+            and getattr(obj, "__module__", None) == "__main__"
+        }
+
+    def pre_run_cell(self, *args, **kwargs):  # pragma: no cover
+        self._snapshot()
+
+    def post_run_cell(self, *args, **kwargs):  # pragma: no cover
+        ns = getattr(self._ipython, "user_ns", {}) or {}
+        patch_namespace(self._before, ns, module_name="__main__")
+
+
+_hotswap: _NotebookHotswap | None = None
+
+
+def enable(ipython=None):
+    """Enable in-place patching for re-executed notebook cells.
+
+    Use `%load_ext jurigged` (or `jurigged.notebook`) to enable this in IPython/Jupyter.
+    """
+    global _hotswap
+
+    if _hotswap is not None:
+        return _hotswap
+
+    if ipython is None:  # pragma: no cover
+        try:
+            from IPython import get_ipython  # type: ignore[import-not-found]
+        except Exception as exc:  # pragma: no cover
+            raise RuntimeError(
+                "IPython is required for jurigged notebook integration. "
+                "Install with `pip install jurigged[notebook]`."
+            ) from exc
+        ipython = get_ipython()
+
+    if ipython is None:  # pragma: no cover
+        raise RuntimeError("No active IPython session found.")
+
+    h = _NotebookHotswap(ipython)
+    ipython.events.register("pre_run_cell", h.pre_run_cell)
+    ipython.events.register("post_run_cell", h.post_run_cell)
+    _hotswap = h
+    return _hotswap
+
+
+def disable(ipython=None):
+    """Disable in-place patching for notebook cells."""
+    global _hotswap
+
+    if _hotswap is None:
+        return
+
+    if ipython is None:  # pragma: no cover
+        try:
+            from IPython import get_ipython  # type: ignore[import-not-found]
+        except Exception:
+            ipython = None
+        else:
+            ipython = get_ipython()
+
+    if ipython is not None:  # pragma: no cover
+        try:
+            ipython.events.unregister("pre_run_cell", _hotswap.pre_run_cell)
+        except Exception:
+            pass
+        try:
+            ipython.events.unregister("post_run_cell", _hotswap.post_run_cell)
+        except Exception:
+            pass
+
+    _hotswap = None
+
+
+def load_ipython_extension(ipython):  # pragma: no cover
+    enable(ipython)
+
+
+def unload_ipython_extension(ipython):  # pragma: no cover
+    disable(ipython)
